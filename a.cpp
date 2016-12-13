@@ -1,4 +1,6 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <cstring>
+#include <iomanip>
 using namespace std;
 typedef long double ld;
 
@@ -14,24 +16,6 @@ inline void ass(ld x, int k, int a, int b) {
 	memo[k*zp2 + a*zp + b] = x;
 }
 
-ld f(int k, int a, int b) {
-	if (get(k,a,b) >= 0)
-		return get(k,a,b);
-	if (k == 0) {
-		ass(0, k,a,b);
-		return 0;
-	}
-	ld ratio = (a + 1.0) / (a + b + 2.0);
-	if (curN == 0) {
-		ass(ratio, k,a,b);
-		return ratio;
-	}
-	ld h = ratio * (1.0 + f(k-1, a+1, b));
-	ld t = (b + 1.0) / (a + b + 2.0) * max(vipMemo[(k-1)*zp + curN-1], f(k-1,a,b+1));
-	ass(h+t, k,a,b);
-	return h + t;
-}
-
 int main(int argc, char *argv[]) {
 	if (argc != 2) {
 		cout << "You fucked up.\n";
@@ -44,11 +28,24 @@ int main(int argc, char *argv[]) {
 	vipMemo = (ld*)malloc(zp2 * sizeof(ld));
 	memo = (ld*)malloc(zp2*zp * sizeof(ld));
 	for (; curN <= z; curN++) {
-		for (int i = 0; i < zp*zp2; i++) memo[i] = -1;
+		for (int i = 0; i < zp2*zp; i++) memo[i] = 0;
 		for (int k = 0; k <= z; k++) {
-			vipMemo[k*zp + curN] = f(k, 0, 0);
+			for (int a = curN; a >= 0; a--)
+				for (int b = curN - a; b >= 0; b--) {
+					if (k == 0) ass(0, k, a, b);
+					else {
+						ld r = (a + 1.0) / (a + b + 2.0);
+						if (curN == 0) ass(r, k, a, b);
+						else ass(
+							(a + 1.0) / (a + b + 2.0) * (1.0 + get(k-1, a+1, b)) +
+							(b + 1.0) / (a + b + 2.0) * max(vipMemo[zp*(k-1) + curN-1], get(k-1, a, b+1)),
+							k, a, b
+						);
+					}
+				}
+			vipMemo[k*zp + curN] = get(k, 0, 0);
 		}
-	} 
+	}
 
 	cout << fixed << setprecision(20);
 	for (int i = 0; i <= z; i++)
