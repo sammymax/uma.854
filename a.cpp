@@ -31,6 +31,7 @@ void calcOverA(int n, int k, int tnum) {
 int main(int argc, char *argv[]) {
 	if (argc != 2) z = 50;
 	else z = atoi(argv[1]);
+	cout << fixed << setprecision(20);
 
 	zp = z + 1;
 	zp2 = zp*zp;
@@ -47,14 +48,10 @@ int main(int argc, char *argv[]) {
 			swap(memo1, memo2);
 			vipMemo[k*zp + n] = get(0, 0);
 		}
+		if (argc == 2) cout << n << ' ' << vipMemo[n*zp + n] << '\n';
 	}
 
-	if (argc == 2) {
-		cout << fixed << setprecision(20);
-		for (int i = 0; i <= z; i++)
-			cout << i << ' ' << vipMemo[i*zp + i] / i << '\n';
-	}
-	else {
+	if (argc == 1) {
 		ld want = 0.80791935290609852608L, got = vipMemo[z*zp + z] / z;
 		if (abs(want - got) > 1e-10) {
 			cout << "Expected " << want << '\n';
