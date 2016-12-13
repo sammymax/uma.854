@@ -1,5 +1,6 @@
 calls = set()
-sz = 4
+nt = 3
+kt = 5
 
 def f(n,k,a,b):
 	if (n,k,a,b) in calls:
@@ -11,7 +12,7 @@ def f(n,k,a,b):
 	f(n,k-1,a+1,b)
 	f(n,k-1,a,b+1)
 
-f(sz,sz,0,0)
+f(nt,kt,0,0)
 print(len(calls))
 #calls = list(calls)
 #calls.sort()
@@ -19,22 +20,19 @@ print(len(calls))
 #	print(c)
 
 itcalls = set()
-for n in range(sz+1):
+for n in range(nt+1):
 	#start = 0 if n != sz else sz
 	start = 0
-	for k in range(start,n+1):
-		for a in range(n-k+1):
-			if n == sz:
-				itcalls.add((n,k,a,n-k-a))
+	for k in range(start,n+1 + kt-nt):
+		for a in range(n-k+1 + kt-nt):
+			if n == nt:
+				itcalls.add((n,k,a,n-k-a + kt-nt))
 			else:
-				for b in range(n-k-a+1):
+				for b in range(n-k-a+1 + kt-nt):
 					itcalls.add((n,k,a,b))
 print(len(itcalls))
 print(len(itcalls & calls))
 l = sorted(list(calls))
 for c in l:
 	print(c[0], c[1], c[2], c[3])
-
-for c in calls:
-	if c[0] < c[1] + c[2] + c[3]:
-		print(c)
+print(sorted(list(itcalls - calls)))
