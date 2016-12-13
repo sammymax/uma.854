@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstring>
 #include <iomanip>
+#include <cmath>
 using namespace std;
 typedef long double ld;
 
@@ -17,14 +18,12 @@ inline void ass(ld x, int k, int a, int b) {
 }
 
 int main(int argc, char *argv[]) {
-	if (argc != 2) {
-		cout << "You fucked up.\n";
-		return 0;
-	}
-	z = atoi(argv[1]);
+	if (argc != 2) z = 50;
+	else z = atoi(argv[1]);
+
 	zp = z + 1;
 	zp2 = zp*zp;
-	cout << z << '\n';
+	cout << "Calculating up to f(" << z << ',' << z << ",0,0)\n";
 	vipMemo = (ld*)malloc(zp2 * sizeof(ld));
 	memo = (ld*)malloc(zp2*zp * sizeof(ld));
 	for (; curN <= z; curN++) {
@@ -47,7 +46,18 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
-	cout << fixed << setprecision(20);
-	for (int i = 0; i <= z; i++)
-		cout << vipMemo[i*zp + i] / i << '\n';
+	if (argc == 2) {
+		cout << fixed << setprecision(20);
+		for (int i = 0; i <= z; i++)
+			cout << i << ' ' << vipMemo[i*zp + i] / i << '\n';
+	}
+	else {
+		ld want = 0.80791935290609852608L, got = vipMemo[50*zp + 50] / 50;
+		if (abs(want - got) > 1e-10) {
+			cout << "Expected " << want << '\n';
+			cout << "Got      " << got << '\n';
+			cout << "Diff     " << want - got << '\n';
+		}
+		else cout << "f(50,50,0,0) passed!\n";
+	}
 }
