@@ -2,19 +2,29 @@
 #include <cstring>
 #include <iomanip>
 #include <cmath>
+#include <thread>
 using namespace std;
 typedef long double ld;
 
-ld *memo1, *memo2;
-ld *vipMemo;
+ld *memo1, *memo2, *vipMemo;
 int z, zp, zp2;
-int curN = 0;
+const int NUMT = 4;
 
 inline ld get(int a, int b) {
 	return memo1[a*zp + b];
 }
-inline void ass(ld x, int a, int b) {
-	memo2[a*zp + b] = x;
+
+void calcOverA(int n, int k, int tnum) {
+	int bot = tnum * (n / NUMT);
+	int top = (tnum == NUMT - 1) ? n : (tnum + 1) * (n / NUMT);
+	for (int a = bot; a < top; a++) {
+		ld *cur = &memo2[a*zp + n - a];
+		for (int b = n - a; b >= 0; b--) {
+			*cur = (a + 1.0) / (a + b + 2.0) * (1.0 + get(a+1, b)) +
+				   (b + 1.0) / (a + b + 2.0) * max(vipMemo[zp*(k-1) + n-1], get(a, b+1));
+			cur--;
+		}
+	}
 }
 
 int main(int argc, char *argv[]) {
@@ -24,28 +34,18 @@ int main(int argc, char *argv[]) {
 	zp = z + 1;
 	zp2 = zp*zp;
 	cout << "Calculating up to f(" << z << ',' << z << ",0,0)\n";
-	vipMemo	= (ld*)malloc(zp2 * sizeof(ld));
+	vipMemo	= (ld*)calloc(zp2,  sizeof(ld));
 	memo1	= (ld*)malloc(zp2 * sizeof(ld));
 	memo2	= (ld*)malloc(zp2 * sizeof(ld));
-	for (; curN <= z; curN++) {
+	for (int n = 1; n <= z; n++) {
 		memset(memo1, 0, sizeof(ld) * zp2);
 		memset(memo2, 0, sizeof(ld) * zp2);
-		for (int k = 0; k <= z; k++) {
-			for (int a = curN; a >= 0; a--)
-				for (int b = curN - a; b >= 0; b--) {
-					if (k == 0) ass(0, a, b);
-					else {
-						ld r = (a + 1.0) / (a + b + 2.0);
-						if (curN == 0) ass(r, a, b);
-						else ass(
-							(a + 1.0) / (a + b + 2.0) * (1.0 + get(a+1, b)) +
-							(b + 1.0) / (a + b + 2.0) * max(vipMemo[zp*(k-1) + curN-1], get(a, b+1)),
-							a, b
-						);
-					}
-				}
+		for (int k = 1; k <= z; k++) {
+			thread ts[NUMT];
+			for (int i = 0; i < NUMT; i++) ts[i] = thread(calcOverA, n, k, i);
+			for (int i = 0; i < NUMT; i++) ts[i].join();
 			swap(memo1, memo2);
-			vipMemo[k*zp + curN] = get(0, 0);
+			vipMemo[k*zp + n] = get(0, 0);
 		}
 	}
 
