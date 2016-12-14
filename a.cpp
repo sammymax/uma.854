@@ -18,14 +18,10 @@ void calcOverA(const int n, const int k, const int tnum) {
 	const int rn = n-k + ktp - ntp;
 	const int bot = tnum * (rn / NUMT);
 	const int top = (tnum == NUMT - 1) ? rn+1 : (tnum + 1) * (rn / NUMT);
-	for (int a = bot; a < top; a++) {
-		ld *cur = &memo2[a*ktp];
-		for (int b = 0; b <= n-k-a + ktp-ntp; b++) {
-			*cur = (a + 1.0) / (a + b + 2.0) * (1.0 + get(a+1, b)) +
+	for (int a = bot; a < top; a++)
+		for (int b = 0; b <= n-k-a + ktp-ntp; b++)
+			memo2[a*ktp + b] = (a + 1.0) / (a + b + 2.0) * (1.0 + get(a+1, b)) +
 				   (b + 1.0) / (a + b + 2.0) * max(vipMemo[ntp*(k-1) + n-1], get(a, b+1));
-			cur++;
-		}
-	}
 }
 
 int main(int argc, char *argv[]) {
@@ -38,6 +34,7 @@ int main(int argc, char *argv[]) {
 	vipMemo	= new ld[ktp * ntp];
 	memo1	= new ld[ktp2];
 	memo2	= new ld[ktp2];
+	for (int k = 1; k < ktp; k++) vipMemo[k*ntp] = 0.5L;
 	for (int n = 1; n < ntp; n++) {
 		memset(memo1, 0, sizeof(ld) * ktp2); // result is 0 if k = 0
 		for (int k = 1; k <= n + kt-nt; k++) {
@@ -47,7 +44,7 @@ int main(int argc, char *argv[]) {
 			swap(memo1, memo2);
 			vipMemo[k*ntp + n] = get(0, 0);
 		}
-		if (argc == 2) cout << n << ' ' << vipMemo[n*ntp + n] << '\n';
+		if (argc == 3) cout << n << ' ' << vipMemo[n*n*ntp + n] << '\n';
 	}
 
 	if (argc == 1) {
